@@ -35,6 +35,8 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.kobakei.ratethisapp.enums.RateConditionsEnum;
+
 /**
  * RateThisApp<br>
  * A library to show the app rate dialog
@@ -165,15 +167,17 @@ public class RateThisApp {
         if (mOptOut || mAlreadyReviewed) {
             return false;
         } else {
-            if (mLaunchTimes >= sConfig.mCriteriaLaunchTimes) {
-                return true;
-            }
+            boolean launchTimesFulfilled = (mLaunchTimes >= sConfig.mCriteriaLaunchTimes);
+
             long threshold = TimeUnit.DAYS.toMillis(sConfig.mCriteriaInstallDays);   // msec
-            if (new Date().getTime() - mInstallDate.getTime() >= threshold &&
-                new Date().getTime() - mAskLaterDate.getTime() >= threshold) {
-                return true;
+            boolean installThresholdFulfilled = ((new Date().getTime() - mInstallDate.getTime() >= threshold)
+                                                 && (new Date().getTime() - mAskLaterDate.getTime() >= threshold)) ;
+
+            if (sConfig.mAndCondition){
+                return launchTimesFulfilled && installThresholdFulfilled;
+            } else {
+                return launchTimesFulfilled || installThresholdFulfilled;
             }
-            return false;
         }
     }
 
@@ -400,6 +404,7 @@ public class RateThisApp {
         private int mNoButtonId = 0;
         private int mCancelButton = 0;
         private boolean mCancelable = true;
+        private boolean mAndCondition = false;
 
         private boolean mPromptForNewVersion = false;
         private int mCurrentAppVersion = -1;
@@ -410,6 +415,11 @@ public class RateThisApp {
             this(7, 10);
         }
 
+        public Config(RateConditionsEnum rateConditionsJoin) {
+            this();
+            this.mAndCondition = rateConditionsJoin == RateConditionsEnum.AND;
+        }
+
         /**
          * Constructor.
          * @param criteriaInstallDays
@@ -418,6 +428,18 @@ public class RateThisApp {
         public Config(int criteriaInstallDays, int criteriaLaunchTimes) {
             this.mCriteriaInstallDays = criteriaInstallDays;
             this.mCriteriaLaunchTimes = criteriaLaunchTimes;
+        }
+
+        /**
+         * Constructor.
+         * @param criteriaInstallDays
+         * @param criteriaLaunchTimes
+         * @param rateConditionsJoin
+         */
+        public Config(int criteriaInstallDays, int criteriaLaunchTimes, RateConditionsEnum rateConditionsJoin) {
+            this.mCriteriaInstallDays = criteriaInstallDays;
+            this.mCriteriaLaunchTimes = criteriaLaunchTimes;
+            this.mAndCondition = rateConditionsJoin == RateConditionsEnum.AND;
         }
 
         /**
@@ -435,7 +457,7 @@ public class RateThisApp {
         public void setMessage(@StringRes int stringId) {
             this.mMessageId = stringId;
         }
-        
+
         /**
          * Set rate now string ID.
          * @param stringId
@@ -443,7 +465,7 @@ public class RateThisApp {
         public void setYesButtonText(@StringRes int stringId) {
             this.mYesButtonId = stringId;
         }
-        
+
         /**
          * Set no thanks string ID.
          * @param stringId
@@ -451,7 +473,7 @@ public class RateThisApp {
         public void setNoButtonText(@StringRes int stringId) {
             this.mNoButtonId = stringId;
         }
-        
+
         /**
          * Set cancel string ID.
          * @param stringId
@@ -482,6 +504,16 @@ public class RateThisApp {
             this.mPromptForNewVersion = promptForNewVersion;
             this.mCurrentAppVersion = currentAppVersion;
         }
+        
+        /**
+         * Set condition to And
+         */
+        public void setOrCondition() { this.mAndCondition = false; }
+
+        /**
+         * Set condition to Or
+         */
+        public void setAndCondition(){ this.mAndCondition = true; }
     }
 
     /**
