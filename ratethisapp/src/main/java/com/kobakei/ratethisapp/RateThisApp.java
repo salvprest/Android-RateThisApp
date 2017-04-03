@@ -252,14 +252,8 @@ public class RateThisApp {
                 if (!TextUtils.isEmpty(sConfig.mUrl)) {
                     url = sConfig.mUrl;
                 }
-<<<<<<< HEAD
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                context.startActivity(intent);
-                setAlreadyReviewed(context, true);
-=======
                 openPlayStore(context, appPackage, url);
-                setOptOut(context, true);
->>>>>>> 1bda54a572d070d940cceabba4aa82ea0f347aa0
+                setAlreadyReviewed(context, true);
             }
         });
         builder.setNeutralButton(cancelButtonID, new OnClickListener() {
