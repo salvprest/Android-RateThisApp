@@ -216,6 +216,16 @@ public class RateThisApp {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getInt(KEY_LAUNCH_TIMES, 0);
     }
+    
+    private static void openPlayStore(Context context, String packageName, String url) {
+        Uri uri = Uri.parse("market://details?id=" + packageName);
+        try {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        } catch (ActivityNotFoundException e) {
+            uri = Uri.parse(url + packageName);
+            context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        }
+    }
 
     private static void showRateDialog(final Context context, AlertDialog.Builder builder) {
         if (sDialogRef != null && sDialogRef.get() != null) {
@@ -242,9 +252,14 @@ public class RateThisApp {
                 if (!TextUtils.isEmpty(sConfig.mUrl)) {
                     url = sConfig.mUrl;
                 }
+<<<<<<< HEAD
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 context.startActivity(intent);
                 setAlreadyReviewed(context, true);
+=======
+                openPlayStore(context, appPackage, url);
+                setOptOut(context, true);
+>>>>>>> 1bda54a572d070d940cceabba4aa82ea0f347aa0
             }
         });
         builder.setNeutralButton(cancelButtonID, new OnClickListener() {
